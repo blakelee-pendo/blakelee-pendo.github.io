@@ -2,20 +2,28 @@
 
 <body>
     <button id="write-btn">Write key 'frame-entry' with value 'frame-value' to localstorage</button>
-    <div style="margin-top: 20px;">Local Storage Values:</div>
+    <div style="margin-top: 20px;">Local Storage:</div>
     <div id="ls-last-check-timestamp"></div>
+    <div id="has-storage-access"></div>
     <div id="ls-box" style="white-space: pre;"></div>
     <script>
         const lsBox = document.getElementById('ls-box');
         const lsLastCheckTimestamp = document.getElementById('ls-last-check-timestamp');
+        const hasStorageAccess = document.getElementById('has-storage-access');
 
         window.setInterval(() => {
             const ls = window.localStorage;
+
             lsLastCheckTimestamp.innerText = `Last checked: ${new Date().toLocaleTimeString()}`;
+            document.hasStorageAccess().then(result => {
+                hasStorageAccess.innerText = `Has storage access: ${result}`;
+            });
+
             const lsContents = Object.keys(ls).reduce((acc, key) => {
                 acc[key] = ls[key];
                 return acc;
             }, {});
+
             lsBox.innerText = JSON.stringify(lsContents, null, 4);
         }, 1000);
 
