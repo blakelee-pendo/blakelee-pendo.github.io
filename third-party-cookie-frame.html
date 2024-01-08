@@ -2,6 +2,8 @@
 
 <body>
     <button id="write-btn">Write key 'frame-entry' with value 'frame-value' to localstorage</button>
+    <br>
+    <button id="request-access">Request hasStorageAccess</button>
     <div style="margin-top: 20px;">Local Storage:</div>
     <div id="ls-last-check-timestamp"></div>
     <div id="has-storage-access"></div>
@@ -10,6 +12,7 @@
         const lsBox = document.getElementById('ls-box');
         const lsLastCheckTimestamp = document.getElementById('ls-last-check-timestamp');
         const hasStorageAccess = document.getElementById('has-storage-access');
+        const requestAccessBtn = document.getElementById('request-access');
 
         window.setInterval(() => {
             const ls = window.localStorage;
@@ -30,6 +33,15 @@
         const writeBtn = document.getElementById('write-btn');
         writeBtn.addEventListener('click', () => {
             window.localStorage.setItem('frame-entry', 'frame-value');
+        });
+
+        requestAccessBtn.addEventListener('click', () => {
+            document.requestStorageAccess().then(result => {
+                document.hasStorageAccess().then(result => {
+                    console.log("result of requestStorageAccess: ", result);
+                    hasStorageAccess.innerText = `Has storage access: ${result}`;
+                });
+            });
         });
     </script>
 </body>
