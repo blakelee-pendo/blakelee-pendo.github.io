@@ -21,7 +21,7 @@
 
         const writeBtn = document.getElementById('write-btn');
         writeBtn.addEventListener('click', () => {
-            window.localStorage.setItem('window-entry', 'window-value');
+            window.localStorage.setItem('window-entry', `window-value-${Date.now()}`);
         });
     </script>
 </body>

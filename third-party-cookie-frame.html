@@ -32,7 +32,7 @@
 
         const writeBtn = document.getElementById('write-btn');
         writeBtn.addEventListener('click', () => {
-            window.localStorage.setItem('frame-entry', 'frame-value');
+            window.localStorage.setItem('frame-entry', `frame-value-${Date.now()}`);
         });
 
         requestAccessBtn.addEventListener('click', () => {
