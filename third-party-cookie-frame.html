@@ -1,15 +1,11 @@
 <html>
 
 <body>
-    <button id="write-btn">Write key 'frame-entry' with value 'frame-value' to localstorage</button>
-    <br>
-    <button id="request-access">Request hasStorageAccess</button>
-    <div style="margin-top: 20px;">Local Storage:</div>
+    <button id="request-access">Run requestStorageAccess({ localStorage: true })</button>
+
     <div id="ls-last-check-timestamp"></div>
     <div id="has-storage-access"></div>
-    <div id="ls-box" style="white-space: pre;"></div>
     <script>
-        const lsBox = document.getElementById('ls-box');
         const lsLastCheckTimestamp = document.getElementById('ls-last-check-timestamp');
         const hasStorageAccess = document.getElementById('has-storage-access');
         const requestAccessBtn = document.getElementById('request-access');
@@ -21,27 +17,23 @@
             document.hasStorageAccess().then(result => {
                 hasStorageAccess.innerText = `Has storage access: ${result}`;
             });
-
-            const lsContents = Object.keys(ls).reduce((acc, key) => {
-                acc[key] = ls[key];
-                return acc;
-            }, {});
-
-            lsBox.innerText = JSON.stringify(lsContents, null, 4);
         }, 1000);
 
-        const writeBtn = document.getElementById('write-btn');
-        writeBtn.addEventListener('click', () => {
-            window.localStorage.setItem('frame-entry', `frame-value-${Date.now()}`);
-        });
-
         requestAccessBtn.addEventListener('click', () => {
-            document.requestStorageAccess().then(result => {
-                document.hasStorageAccess().then(result => {
-                    console.log("result of requestStorageAccess: ", result);
-                    hasStorageAccess.innerText = `Has storage access: ${result}`;
-                });
-            });
+            try {
+                document.requestStorageAccess({ localStorage: true })
+                    .then(handle => {
+                        console.log('Storage access granted with handle:', handle);
+                    }, (err) => {
+                        console.error('Callback-style storage access denied (given example on MDN, will not log)');
+                    }).catch(err => {
+                        console.error('Storage access denied (this never logs)');
+                    }).finally(() => {
+                        console.log('Will never log if the user declines storage access');
+                    })
+            } catch(err) {
+                console.error('This wont log (not that I would expect it to, since the error is thrown in a promise)')
+            }
         });
     </script>
 </body>
