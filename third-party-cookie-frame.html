@@ -2,6 +2,7 @@
 
 <body>
     <button id="request-access">Run requestStorageAccess({ localStorage: true })</button>
+    <button id="request-access-cookies">Run requestStorageAccess({ localStorage: true, cookies: true })</button>
 
     <div id="ls-last-check-timestamp"></div>
     <div id="has-storage-access"></div>
@@ -9,6 +10,7 @@
         const lsLastCheckTimestamp = document.getElementById('ls-last-check-timestamp');
         const hasStorageAccess = document.getElementById('has-storage-access');
         const requestAccessBtn = document.getElementById('request-access');
+        const requestAccessCookiesBtn = document.getElementById('request-access-cookies');
 
         window.setInterval(() => {
             const ls = window.localStorage;
@@ -22,6 +24,23 @@
         requestAccessBtn.addEventListener('click', () => {
             try {
                 document.requestStorageAccess({ localStorage: true })
+                    .then(handle => {
+                        console.log('Storage access granted with handle:', handle);
+                    }, (err) => {
+                        console.error('Callback-style storage access denied (given example on MDN, will not log)');
+                    }).catch(err => {
+                        console.error('Storage access denied (this never logs)');
+                    }).finally(() => {
+                        console.log('Will never log if the user declines storage access');
+                    })
+            } catch(err) {
+                console.error('This wont log (not that I would expect it to, since the error is thrown in a promise)')
+            }
+        });
+
+        requestAccessCookiesBtn.addEventListener('click', () => {
+            try {
+                document.requestStorageAccess({ localStorage: true, cookies: true })
                     .then(handle => {
                         console.log('Storage access granted with handle:', handle);
                     }, (err) => {
