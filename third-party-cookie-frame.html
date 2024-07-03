@@ -28,6 +28,7 @@
                         console.log('Storage access granted with handle:', handle);
                     }).catch(err => {
                         console.error('Storage access denied (this never logs)', err);
+                        console.log(err, Object.keys(err))
                     }).finally(() => {
                         console.log('Will never log if the user declines storage access');
                     })
