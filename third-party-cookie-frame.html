@@ -26,10 +26,8 @@
                 document.requestStorageAccess({ localStorage: true })
                     .then(handle => {
                         console.log('Storage access granted with handle:', handle);
-                    }, (err) => {
-                        console.error('Callback-style storage access denied (given example on MDN, will not log)');
                     }).catch(err => {
-                        console.error('Storage access denied (this never logs)');
+                        console.error('Storage access denied (this never logs)', err);
                     }).finally(() => {
                         console.log('Will never log if the user declines storage access');
                     })
