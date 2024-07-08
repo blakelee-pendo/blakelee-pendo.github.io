@@ -6,11 +6,16 @@
 
     <div id="ls-last-check-timestamp"></div>
     <div id="has-storage-access"></div>
+    <div>
+        localStorage data:
+    </div>
+    <div id="ls-box" style="white-space: pre;"></div>
     <script>
         const lsLastCheckTimestamp = document.getElementById('ls-last-check-timestamp');
         const hasStorageAccess = document.getElementById('has-storage-access');
         const requestAccessBtn = document.getElementById('request-access');
         const requestAccessCookiesBtn = document.getElementById('request-access-cookies');
+        const lsBox = document.getElementById('ls-box');
 
         window.setInterval(() => {
             const ls = window.localStorage;
@@ -19,6 +24,11 @@
             document.hasStorageAccess().then(result => {
                 hasStorageAccess.innerText = `Has storage access: ${result}`;
             });
+
+            lsBox.innerText = JSON.stringify(Object.keys(ls).reduce((acc, key) => {
+                acc[key] = ls[key];
+                return acc;
+            }, {}), null, 4);
         }, 1000);
 
         requestAccessBtn.addEventListener('click', () => {
