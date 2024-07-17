@@ -8,7 +8,7 @@
         const lsLog = document.getElementById('ls-log');
 
         window.addEventListener('storage', (e) => {
-            lsLogs.innerHTML = lsLogs.innerHTML + `
+            lsLog.innerHTML = lsLog.innerHTML + `
                     <div>
                         <b>${e.key}</b>: ${e.newValue}
                     </div>
