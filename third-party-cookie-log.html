@@ -16,7 +16,15 @@
 
             const requestStorageAccessBtn = document.getElementById('request-storage-access');
             requestStorageAccessBtn.addEventListener('click', async () => {
+                console.log("requestStorageAccessBtn clicked");
                 await document.requestStorageAccess();
+                window.addEventListener('storage', (e) => {
+                    lsLogs.innerHTML = lsLogs.innerHTML + `
+                        <div>
+                            <b>${e.key}</b>: ${e.newValue}
+                        </div>
+                    `;
+                });
             });
         </script>
     </body>
