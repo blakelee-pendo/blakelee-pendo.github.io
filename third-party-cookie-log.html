@@ -1,0 +1,17 @@
+<html>
+    <body>
+        Log of storage events:
+        <div id="ls-logs"></div>
+        <script>
+            const lsLogs = document.getElementById('ls-logs');
+
+            window.addEventListener('storage', (e) => {
+                lsLogs.innerHTML = lsLogs.innerHTML + `
+                    <div>
+                        <b>${e.key}</b>: ${e.newValue}
+                    </div>
+                `;
+            });
+        </script>
+    </body>
+</html>
