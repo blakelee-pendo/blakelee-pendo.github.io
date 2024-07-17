@@ -49,12 +49,13 @@
             const hasAccess = await document.hasStorageAccess();
             const newStorageInstance = {}
 
+            let newHandle;
             if(!hasAccess) {
-                const newHandle = await document.requestStorageAccess({ all: true });
+                newHandle = await document.requestStorageAccess({ all: true });
                 newStorageInstance.label = `(${storageInstances.length + 1}) requestStorageAccess({ all: true }) handle`;
                 newStorageInstance.handle = newHandle;
             } else {
-                const newHandle = window;
+                newHandle = window;
                 newStorageInstance.label = `(${storageInstances.length + 1}) window handle`;
                 newStorageInstance.handle = newHandle;
             }
