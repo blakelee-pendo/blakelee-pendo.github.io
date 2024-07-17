@@ -29,6 +29,14 @@
             windowStorageBtn.removeAttribute('disabled');
             rsaStorageBtn.removeAttribute('disabled');
         });
+
+        windowStorageBtn.addEventListener('click', () => {
+            window.localStorage.setItem('window-entry', `window-value-${Date.now()}`);
+        });
+
+        rsaStorageBtn.addEventListener('click', () => {
+            rsaHandle.localStorage.setItem('rsa-entry', `rsa-value-${Date.now()}`);
+        });
     </script>
 </body>
 
