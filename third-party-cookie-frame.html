@@ -36,7 +36,7 @@
 
             storageInstances.forEach((storageInstance, index) => {
                 const lsBox = document.getElementById(`ls-handle-${index + 1}`);
-                const ls = storageInstance.localStorage;
+                const ls = storageInstance.handle.localStorage;
 
                 lsBox.innerText = JSON.stringify(Object.keys(ls).reduce((acc, key) => {
                     acc[key] = ls[key];
