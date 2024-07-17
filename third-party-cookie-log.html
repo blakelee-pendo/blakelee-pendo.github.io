@@ -1,5 +1,6 @@
 <html>
     <body>
+        <button id="request-storage-access">Request storage access</button>
         Log of storage events:
         <div id="ls-logs"></div>
         <script>
@@ -11,6 +12,11 @@
                         <b>${e.key}</b>: ${e.newValue}
                     </div>
                 `;
+            });
+
+            const requestStorageAccessBtn = document.getElementById('request-storage-access');
+            requestStorageAccessBtn.addEventListener('click', async () => {
+                await document.requestStorageAccess();
             });
         </script>
     </body>
