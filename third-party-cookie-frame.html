@@ -1,22 +1,30 @@
 <html>
 
 <body>
-    <button id="request-access">Start hasStorageAccess/requestStorageAccess flow</button>
-    <button id="add-to-ls">Add random value to localStorage handle</button>
+    <button id="has-slash-request">use hasStorageAccess/requestStorageAccess flow, generate new handle and write to it</button>
+    <button id="always-request">always rely on requestStorageAccess return value</button>
     <div id="ls-last-check-timestamp"></div>
     <div id="has-storage-access"></div>
-    <div>
-        localStorage data:
-    </div>
-    <div id="ls-box" style="white-space: pre;"></div>
+    <div id="ls-box"></div>
     <script>
         const lsLastCheckTimestamp = document.getElementById('ls-last-check-timestamp');
         const hasStorageAccess = document.getElementById('has-storage-access');
-        const requestAccessBtn = document.getElementById('request-access');
+        const hasSlashRequestBtn = document.getElementById('has-slash-request');
         const addToLSBtn = document.getElementById('add-to-ls');
+        const alwaysRequestBtn = document.getElementById('always-request');
         const lsBox = document.getElementById('ls-box');
 
-        let lsHandle;
+        const storageInstances = [{
+            label: 'window.localStorage',
+            handle: window
+        }];
+
+        lsBox.innerHTML = lsBox.innerHTML + `
+            <div>
+                ${storageInstances[0].label}
+            </div>
+            <div id="ls-handle-${storageInstances.length}" style="white-space: pre;"></div>
+        `;
 
         window.setInterval(() => {
             lsLastCheckTimestamp.innerText = `Last checked: ${new Date().toLocaleTimeString()}`;
@@ -24,31 +32,62 @@
                 hasStorageAccess.innerText = `Has storage access: ${result}`;
             });
 
-            if(!lsHandle) return;
+            if(!storageInstances.length) return;
 
-            const ls = lsHandle.localStorage;
+            storageInstances.forEach((storageInstance, index) => {
+                const lsBox = document.getElementById(`ls-handle-${index + 1}`);
+                const ls = storageInstance.localStorage;
 
-            lsBox.innerText = JSON.stringify(Object.keys(ls).reduce((acc, key) => {
-                acc[key] = ls[key];
-                return acc;
-            }, {}), null, 4);
+                lsBox.innerText = JSON.stringify(Object.keys(ls).reduce((acc, key) => {
+                    acc[key] = ls[key];
+                    return acc;
+                }, {}), null, 4);
+            });
         }, 1000);
 
-        requestAccessBtn.addEventListener('click', async () => {
+        hasSlashRequestBtn.addEventListener('click', async () => {
             const hasAccess = await document.hasStorageAccess();
-            console.log('hasStorageAccess returned as', hasAccess);
+            const newStorageInstance = {}
 
             if(!hasAccess) {
-                lsHandle = await document.requestStorageAccess({ all: true });
+                const newHandle = await document.requestStorageAccess({ all: true });
+                newStorageInstance.label = `(${storageInstances.length + 1}) requestStorageAccess({ all: true }) handle`;
+                newStorageInstance.handle = newHandle;
             } else {
-                lsHandle = window;
+                const newHandle = window;
+                newStorageInstance.label = `(${storageInstances.length + 1}) window handle`;
+                newStorageInstance.handle = newHandle;
             }
+
+            storageInstances.push(newStorageInstance);
+
+            newHandle.localStorage.setItem(`storage-instance-${storageInstances.length}`, `value-${storageInstances.length}`);
+
+            lsBox.innerHTML = lsBox.innerHTML + `
+                <div>
+                    ${newStorageInstance.label}
+                </div>
+                <div id="ls-handle-${storageInstances.length}" style="white-space: pre;"></div>
+            `;
         });
 
-        addToLSBtn.addEventListener('click', () => {
-            if(!lsHandle) return;
+        alwaysRequestBtn.addEventListener('click', async () => {
+            const newHandle = await document.requestStorageAccess({ all: true });
+            const newStorageInstance = {
+                label: `(${storageInstances.length + 1}) requestStorageAccess({ all: true }) handle`,
+                handle: newHandle
+            };
 
-            lsHandle.localStorage.setItem(`key-${Math.random()}`, Math.random());
+            storageInstances.push(newStorageInstance);
+
+            newHandle.localStorage.setItem(`storage-instance-${storageInstances.length}`, `value-${storageInstances.length}`);
+
+            lsBox.innerHTML = lsBox.innerHTML + `
+                <div>
+                    ${newStorageInstance.label}
+                </div>
+                <div id="ls-handle-${storageInstances.length}" style="white-space: pre;"></div>
+            `;
         });
     </script>
 </body>
