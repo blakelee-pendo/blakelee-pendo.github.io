@@ -1,9 +1,8 @@
 <html>
 
 <body>
-    <button id="request-access">Run requestStorageAccess({ localStorage: true })</button>
-    <button id="request-access-cookies">Run requestStorageAccess({ localStorage: true, cookies: true })</button>
-
+    <button id="request-access">Start hasStorageAccess/requestStorageAccess flow</button>
+    <button id="add-to-ls">Add random value to localStorage handle</button>
     <div id="ls-last-check-timestamp"></div>
     <div id="has-storage-access"></div>
     <div>
@@ -14,16 +13,20 @@
         const lsLastCheckTimestamp = document.getElementById('ls-last-check-timestamp');
         const hasStorageAccess = document.getElementById('has-storage-access');
         const requestAccessBtn = document.getElementById('request-access');
-        const requestAccessCookiesBtn = document.getElementById('request-access-cookies');
+        const addToLSBtn = document.getElementById('add-to-ls');
         const lsBox = document.getElementById('ls-box');
 
-        window.setInterval(() => {
-            const ls = window.localStorage;
+        let lsHandle;
 
+        window.setInterval(() => {
             lsLastCheckTimestamp.innerText = `Last checked: ${new Date().toLocaleTimeString()}`;
             document.hasStorageAccess().then(result => {
                 hasStorageAccess.innerText = `Has storage access: ${result}`;
             });
+
+            if(!lsHandle) return;
+
+            const ls = lsHandle.localStorage;
 
             lsBox.innerText = JSON.stringify(Object.keys(ls).reduce((acc, key) => {
                 acc[key] = ls[key];
@@ -31,37 +34,21 @@
             }, {}), null, 4);
         }, 1000);
 
-        requestAccessBtn.addEventListener('click', () => {
-            try {
-                document.requestStorageAccess({ localStorage: true })
-                    .then(handle => {
-                        console.log('Storage access granted with handle:', handle);
-                    }).catch(err => {
-                        console.error('Storage access denied (this never logs)', err);
-                        console.log(err, Object.keys(err))
-                    }).finally(() => {
-                        console.log('Will never log if the user declines storage access');
-                    })
-            } catch(err) {
-                console.error('This wont log (not that I would expect it to, since the error is thrown in a promise)')
+        requestAccessBtn.addEventListener('click', async () => {
+            const hasAccess = await document.hasStorageAccess();
+            console.log('hasStorageAccess returned as', hasAccess);
+
+            if(!hasAccess) {
+                lsHandle = await document.requestStorageAccess({ all: true });
+            } else {
+                lsHandle = window;
             }
         });
 
-        requestAccessCookiesBtn.addEventListener('click', () => {
-            try {
-                document.requestStorageAccess({ localStorage: true, cookies: true })
-                    .then(handle => {
-                        console.log('Storage access granted with handle:', handle);
-                    }, (err) => {
-                        console.error('Callback-style storage access denied (given example on MDN, will not log)');
-                    }).catch(err => {
-                        console.error('Storage access denied (this never logs)');
-                    }).finally(() => {
-                        console.log('Will never log if the user declines storage access');
-                    })
-            } catch(err) {
-                console.error('This wont log (not that I would expect it to, since the error is thrown in a promise)')
-            }
+        addToLSBtn.addEventListener('click', () => {
+            if(!lsHandle) return;
+
+            lsHandle.localStorage.setItem(`key-${Math.random()}`, Math.random());
         });
     </script>
 </body>
