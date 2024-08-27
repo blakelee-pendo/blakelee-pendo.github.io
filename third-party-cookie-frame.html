@@ -5,7 +5,7 @@
     <div id="ls-last-check-timestamp"></div>
     <div id="has-storage-access"></div>
     <div id="ls-buttons">
-        <button id="window-storage" disabled>Write to window.localStorage</button>
+        <button id="window-storage">Write to window.localStorage</button>
         <button id="rsa-storage" disabled>Write to requestStorageAccess handle</button>
     </div>
     <script>
@@ -26,7 +26,6 @@
 
         generateHandlesBtn.addEventListener('click', async () => {
             rsaHandle = await document.requestStorageAccess({ all: true });
-            windowStorageBtn.removeAttribute('disabled');
             rsaStorageBtn.removeAttribute('disabled');
         });
 
