@@ -15,10 +15,11 @@
                 `;
             });
 
+            let storageHandles;
             const requestStorageAccessBtn = document.getElementById('request-storage-access');
             requestStorageAccessBtn.addEventListener('click', async () => {
                 console.log("requestStorageAccessBtn clicked");
-                await document.requestStorageAccess({ all: true });
+                storageHandles = await document.requestStorageAccess({ all: true });
             });
         </script>
     </body>
