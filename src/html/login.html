@@ -104,5 +104,24 @@
         </div><!--/.col-*-->
       </div><!--/.row-->
     </div><!--/.container-->
+    <!-- Pendo Track Event: login form submission -->
+    <script>
+      (function() {
+        var form = document.querySelector('form.form-horizontal');
+        if (form) {
+          form.addEventListener('submit', function() {
+            var usernameInput = document.getElementById('inputUsername');
+            var rememberCheckbox = form.querySelector('input[type="checkbox"]');
+
+            if (typeof pendo !== 'undefined' && pendo.track) {
+              pendo.track("login_form_submitted", {
+                username_provided: !!(usernameInput && usernameInput.value.trim()),
+                remember_username_checked: !!(rememberCheckbox && rememberCheckbox.checked)
+              });
+            }
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
