@@ -10,7 +10,7 @@
     <script>
 		(function(apiKey){
 			(function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=[];
-				v=['initialize','identify','updateOptions','pageLoad'];for(w=0,x=v.length;w<x;++w)(function(m){
+				v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){
 					o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
 				y=e.createElement(n);y.async=!0;y.src='https://pendo-dev-static.storage.googleapis.com/agent/static/'+apiKey+'/pendo.js';
 				z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
@@ -46,10 +46,10 @@
 				visitor: {
 					id: queryString.visitor || 'testuser@pendo'
 				},
-				apiKey: '4c7e0603-698d-4cb5-570e-c2e5f321433c',
+				apiKey: 'd92c345a-a9c7-40d4-9bad-0ffa3d7502e7',
 				account: account
 			});
-		})('4c7e0603-698d-4cb5-570e-c2e5f321433c');
+		})('d92c345a-a9c7-40d4-9bad-0ffa3d7502e7');
     </script>
   </head>
   <body style="height: 100%">
