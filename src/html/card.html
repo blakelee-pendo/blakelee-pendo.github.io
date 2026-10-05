@@ -695,5 +695,150 @@
 
     });
   </script>
+  <script>
+    // Pendo Track Events for the inventory toolbar. This block is the same in
+    // list.html and card.html except for the two view settings at the top.
+    (function ($) {
+      var viewType = 'card';
+      var selectedItemSelector = '.card-pf.active';
+
+      var findDebounceMs = 1000;
+      var maxTextLength = 100;
+
+      // Send a Pendo Track Event without letting analytics break the page.
+      // The install snippet does not stub pendo.track, so calls made before
+      // the agent has loaded are skipped.
+      function trackPendoEvent(name, properties) {
+        try {
+          if (window.pendo && typeof window.pendo.track === 'function') {
+            window.pendo.track(name, properties);
+          }
+        } catch (err) {
+          if (window.console && window.console.warn) {
+            window.console.warn('Pendo track failed: ' + name, err);
+          }
+        }
+      }
+
+      // Keep user-typed values well inside Pendo's property size limit.
+      function truncate(text) {
+        return text.substring(0, maxTextLength);
+      }
+
+      // "40 Results" -> 40. Undefined (property omitted) if there is no number.
+      function getResultsCount() {
+        var count = parseInt($('.toolbar-pf-results h5').text(), 10);
+        return isNaN(count) ? undefined : count;
+      }
+
+      // "1 of 3" -> 3. Undefined (property omitted) if there is no total.
+      function getFindMatchCount() {
+        var count = parseInt($('.find-pf-nums').text().split(' of ')[1], 10);
+        return isNaN(count) ? undefined : count;
+      }
+
+      $(document).ready(function () {
+        // inventory_filter_applied: the user applies the "Filter By" value with
+        // Enter. Filtering is not implemented yet; when it is, apply the filter
+        // (add the chip and recalculate "N Results") before the track call so
+        // the counts describe the updated results. Removing a chip and "Clear
+        // All Filters" are plain clicks that Pendo captures as Features.
+        var lastFilter = null;
+
+        $('#filter').on('keydown', function (e) {
+          if (e.which !== 13) {
+            return;
+          }
+          e.preventDefault(); // Enter applies the filter; never submit the toolbar form
+          var field = $('.toolbar-pf-filter .dropdown-toggle').text().trim();
+          var value = $(this).val().trim();
+          if (!value || field + ':' + value === lastFilter) {
+            return; // nothing to apply, or this filter was just applied
+          }
+          lastFilter = field + ':' + value;
+          trackPendoEvent('inventory_filter_applied', {
+            filter_field: field,
+            filter_value: truncate(value),
+            active_filter_count: $('.toolbar-pf-results .label-info').length,
+            results_count: getResultsCount(),
+            view_type: viewType
+          });
+        });
+
+        // inventory_keyword_searched: the user runs a "Find By Keyword" search by
+        // pressing Enter or pausing typing (debounced, not every keystroke).
+        // Matching is not implemented yet; when it is, update the ".find-pf-nums"
+        // counter before the track call. Moving between matches and closing the
+        // find box are UI clicks and are not tracked.
+        var lastKeyword = '';
+        var findTimer = null;
+
+        function trackKeywordSearch() {
+          clearTimeout(findTimer);
+          var keyword = $('#find').val().trim();
+          if (!keyword || keyword === lastKeyword) {
+            return; // nothing to search, or this keyword was just tracked
+          }
+          lastKeyword = keyword;
+          trackPendoEvent('inventory_keyword_searched', {
+            keyword: truncate(keyword),
+            match_count: getFindMatchCount(),
+            results_count: getResultsCount(),
+            view_type: viewType
+          });
+        }
+
+        $('#find')
+          .on('keydown', function (e) {
+            if (e.which === 13) {
+              e.preventDefault(); // Enter runs the search; never submit the toolbar form
+              trackKeywordSearch();
+            }
+          })
+          .on('input', function () {
+            clearTimeout(findTimer);
+            if (!$(this).val().trim()) {
+              lastKeyword = ''; // a cleared box starts a new search
+              return;
+            }
+            findTimer = setTimeout(trackKeywordSearch, findDebounceMs);
+          });
+
+        // Drop a pending (debounced) search when the find box is toggled closed.
+        $('.btn-find, .btn-find-close').on('click', function () {
+          clearTimeout(findTimer);
+        });
+
+        // inventory_bulk_action_performed: a toolbar action (the "Action" buttons
+        // or the kebab menu items) is run against one or more selected items.
+        // The actions are placeholders; when one is implemented, track it after
+        // the action completes and add success/failure counts if it calls a
+        // backend. Per-item actions act on one item and are left to Pendo
+        // Feature clicks.
+        var $toolbarActions = $('.toolbar-pf-actions .dropdown-kebab-pf').closest('.form-group');
+
+        function trackBulkAction(actionName, actionSource) {
+          var selectedCount = $(selectedItemSelector).length;
+          if (!selectedCount) {
+            return; // nothing is selected, so no bulk action ran
+          }
+          trackPendoEvent('inventory_bulk_action_performed', {
+            action_name: actionName,
+            action_source: actionSource,
+            selected_count: selectedCount,
+            results_count: getResultsCount(),
+            view_type: viewType
+          });
+        }
+
+        $toolbarActions.children('.btn').on('click', function () {
+          trackBulkAction($(this).text().trim(), 'toolbar_button');
+        });
+        $toolbarActions.find('.dropdown-menu a').on('click', function () {
+          trackBulkAction($(this).text().trim(), 'toolbar_kebab');
+        });
+      });
+    })(jQuery);
+  </script>
   </body>
 </html>

@@ -104,5 +104,49 @@
         </div><!--/.col-*-->
       </div><!--/.row-->
     </div><!--/.container-->
+    <script>
+      (function ($) {
+        // Send a Pendo Track Event without letting analytics break the page.
+        // The install snippet does not stub pendo.track, so calls made before
+        // the agent has loaded are skipped.
+        function trackPendoEvent(name, properties) {
+          try {
+            if (window.pendo && typeof window.pendo.track === 'function') {
+              window.pendo.track(name, properties);
+            }
+          } catch (err) {
+            if (window.console && window.console.warn) {
+              window.console.warn('Pendo track failed: ' + name, err);
+            }
+          }
+        }
+
+        $(document).ready(function () {
+          // user_logged_in: the login form is submitted (Log In click or Enter).
+          // There is no auth backend yet, so this fires before the browser
+          // navigates to the form's action page. Once real authentication
+          // exists, fire it from the auth-success callback instead.
+          // Never send the username or password.
+          var loginTracked = false;
+
+          // Re-arm tracking if the page is restored from the back/forward cache.
+          $(window).on('pageshow', function () {
+            loginTracked = false;
+          });
+
+          $('.login form').on('submit', function () {
+            if (loginTracked) {
+              return; // repeat submit (e.g. a double-click) during the same visit
+            }
+            loginTracked = true;
+            trackPendoEvent('user_logged_in', {
+              remember_username: $(this).find('input[type=checkbox]').is(':checked'),
+              login_method: 'password',
+              redirect_page: $(this).attr('action')
+            });
+          });
+        });
+      })(jQuery);
+    </script>
   </body>
 </html>
